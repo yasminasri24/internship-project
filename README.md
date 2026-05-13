@@ -55,6 +55,7 @@ git clone https://github.com/your-username/ChatKita-NNM.git
 3. Start Apache & MySQL
 4. Create a database in phpMyAdmin: chatkita
 5. Import the provided .sql file into the database
+6. Put your IP address in the apiConfig.ts file before running this project
 
 ---
 
