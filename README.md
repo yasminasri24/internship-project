@@ -102,6 +102,6 @@ This project is for educational and portfolio purposes only.
 ---
 
 ## Developer
-Name: Yasmin
-Role: Software Engineering Student
-Project Type: Internship (Group Project)
+- Name: Yasmin
+- Role: Software Engineering Student
+- Project Type: Internship (Group Project)
