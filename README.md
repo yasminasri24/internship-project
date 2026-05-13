@@ -45,7 +45,7 @@ This is a group internship project. My role focused on:
 
 ### Clone Repository
 '''bash
-git clone https://gothub.com/your-username/ChatKita-NNM.git
+git clone https://github.com/your-username/ChatKita-NNM.git
 
 ---
 
@@ -77,10 +77,10 @@ git clone https://gothub.com/your-username/ChatKita-NNM.git
 
 ### Screenshots
 1. Login Screen
-   <img width="362" height="615" alt="Screenshot 2026-01-17 225610" src="https://github.com/user-attachments/assets/c7b9466e-7f89-4419-b29a-c761322772cd" />
+   <img width="263" height="450" alt="Screenshot 2026-01-17 225610" src="https://github.com/user-attachments/assets/c7b9466e-7f89-4419-b29a-c761322772cd" />
 
 2. Chat Screen
-   <img width="562" height="1213" alt="image" src="https://github.com/user-attachments/assets/1715b7c2-f6bd-477a-86ac-545cefd4cfef" />
+   <img width="263" height="450" alt="image" src="https://github.com/user-attachments/assets/1715b7c2-f6bd-477a-86ac-545cefd4cfef" />
 
 ---
 
