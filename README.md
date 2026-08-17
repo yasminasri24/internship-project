@@ -72,7 +72,9 @@ git clone https://github.com/your-username/ChatKita-NNM.git
 
 ### Database
 1. A MySQL database used for storing users and messages
-2. Imported via a .sql file in phpMyAdmin
+2. Open phpMyAdmin
+3. Create a database named 'chatkita'
+4. Import the sql file located in: database/chatkita.sql
 
 ---
 
