@@ -94,5 +94,6 @@ This project is for educational and portfolio purposes.
 ## Developer
 
 Yasmin
+
 Software Engineering Graduate
 
