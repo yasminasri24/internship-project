@@ -8,10 +8,12 @@ switch($method){
 
     // -------------------- GET GROUPS --------------------
     case "GET":
+
         if(isset($_GET['group_id'])){
             $group_id = intval($_GET['group_id']);
-            $sql = "SELECT g.id, g.group_name, g.created_at, g.created_by, u.username AS created_by_username
-                    FROM groups g
+            $sql = "SELECT g.id, g.group_name, g.created_at, g.created_by, 
+                    u.username AS created_by_username
+                    FROM `groups` g
                     INNER JOIN users u ON g.created_by = u.id
                     WHERE g.id = ?";
             $stmt = $conn->prepare($sql);
@@ -27,22 +29,30 @@ switch($method){
             }
         } elseif(isset($_GET['user_id'])){
             $user_id = intval($_GET['user_id']);
+
             $sql = "SELECT g.id, g.group_name, g.created_at, u.username AS created_by_username
-                    FROM groups g
+                    FROM `groups` g
                     INNER JOIN group_members gm ON g.id = gm.group_id
                     INNER JOIN users u ON g.created_by = u.id
                     WHERE gm.user_id = ?
                     ORDER BY g.created_at DESC";
+
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
+
             $result = $stmt->get_result();
+
             $groups = [];
-            while($row = $result->fetch_assoc()) $groups[] = $row;
-            echo json_encode(["success"=>true,"groups"=>$groups]);
-        } else{
-            http_response_code(400);
-            echo json_encode(["success"=>false,"message"=>"Provide group_id or user_id"]);
+
+            while($row = $result->fetch_assoc()) {
+                $groups[] = $row;
+            }
+
+            echo json_encode([
+                "success" => true,
+                "groups" => $groups
+            ]);
         }
         break;
 
@@ -109,7 +119,7 @@ switch($method){
     try{
         $conn->query("DELETE FROM group_messages WHERE group_id=$group_id");
         $conn->query("DELETE FROM group_members WHERE group_id=$group_id");
-        $conn->query("DELETE FROM groups WHERE id=$group_id");
+        $conn->query("DELETE FROM `groups` WHERE id=$group_id");
         $conn->commit();
         echo json_encode(["success"=>true,"message"=>"Group deleted"]);
     }catch(Exception $e){ 

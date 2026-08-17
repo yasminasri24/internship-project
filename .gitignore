@@ -43,3 +43,12 @@ coverage
 .DS_Store
 .vscode/
 .vscode-test/
+
+# Uploaded media
+uploadsPrivate/
+uploadsGroup/
+
+# Runtime media screening logs
+media_screening/media_audit.log
+screening_debug.log
+

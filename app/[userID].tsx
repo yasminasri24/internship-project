@@ -258,6 +258,10 @@ export default function ChatScreen() {
 
       const chat: ApiMessage[] = res.data?.chat ?? [];
 
+      // console.log("===== CHAT MEDIA DEBUG =====");
+      // console.log(JSON.stringify(res.data, null, 2));
+      // console.log("============================");
+
       return chat
         .map((m: any) => ({
           id: String(m.id),
@@ -714,7 +718,7 @@ export default function ChatScreen() {
                   />
                 )}
 
-                {/* AUDIO / VOICE NOTE */}
+                {/* AUDIO / VOICE NOTE
                 {item.media.type === "audio" && item.media.uri && (
                   <TouchableOpacity
                     style={styles.voiceBubble}
@@ -723,7 +727,7 @@ export default function ChatScreen() {
                     <Ionicons name="play-circle" size={28} color="#fff" />
                     <Text style={styles.voiceText}>Voice message</Text>
                   </TouchableOpacity>
-                )}
+                )} */}
               </TouchableOpacity>
 
             )
@@ -873,7 +877,7 @@ export default function ChatScreen() {
           }}
         />
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPressIn={startRecording}
           onPressOut={stopAndSendRecording}
           style={styles.iconBtn}
@@ -883,7 +887,7 @@ export default function ChatScreen() {
             size={22}
             color={recording ? "red" : "#0078fe"}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           style={styles.iconBtn}

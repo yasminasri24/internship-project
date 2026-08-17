@@ -2,15 +2,21 @@
 header("Content-Type: application/json");
 include "db.php";
 
-function getUsernameById($conn, $userId) {
-    $stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
+function getUsernameById(mysqli $conn, int $userId): string {
+    $stmt = $conn->prepare(
+        "SELECT username FROM users WHERE id = ?"
+    );
+
     $stmt->bind_param("i", $userId);
     $stmt->execute();
+
     $result = $stmt->get_result();
+
     if ($row = $result->fetch_assoc()) {
         $stmt->close();
         return $row['username'];
     }
+
     $stmt->close();
     return 'N/A';
 }
@@ -46,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'delete') {
+
+    
+        
         $conn->begin_transaction();
         try {
         // Get username before deleting for logging purposes
@@ -113,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $delUser->bind_param("i", $userId);
         $delUser->execute();
         $delUser->close();
-
+ 
         $conn->commit();
         echo json_encode(["success" => true, "message" => "Action successful"]);
         exit;
@@ -315,6 +324,8 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
 
     try {
 
+    $stmt = null;
+
         if ($group_id) {
             // Case 1: Add members to existing group
             $stmt = $conn->prepare("
@@ -330,12 +341,30 @@ if ($_SERVER['REQUEST_METHOD'] === "GET") {
             $stmt->bind_param("ii", $id, $group_id);
         } else {
             // Case 2: Normal contact list
+            // Contacts with the most recent 1-to-1 chat appear first.
+            // Users with no chat history appear afterwards, alphabetically.
+
             $stmt = $conn->prepare("
-                SELECT u.id, u.username
+                SELECT 
+                    u.id,
+                    u.username,
+                    MAX(m.created_at) AS last_chat_at
                 FROM users u
+                LEFT JOIN messages m
+                    ON (
+                        (m.sender_id = ? AND m.receiver_id = u.id)
+                        OR
+                        (m.sender_id = u.id AND m.receiver_id = ?)
+                    )
                 WHERE u.id != ?
+                GROUP BY u.id, u.username
+                ORDER BY
+                    last_chat_at IS NULL ASC,
+                    last_chat_at DESC,
+                    u.username ASC
             ");
-            $stmt->bind_param("i", $id);
+
+            $stmt->bind_param("iii", $id, $id, $id);
         }
 
         $stmt->execute();

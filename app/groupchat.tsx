@@ -2,8 +2,8 @@
 
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useFocusEffect } from "@react-navigation/native";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -40,18 +40,6 @@ type Message = {
     action?: "allow" | "blur" | "block" | "flagged" | undefined;
   };
 };
-
-
-type RootStackParamList = {
-  groupchat: { id: number };
-  groupinfo: { id: number };
-};
-
-type GroupChatRouteProp = RouteProp<RootStackParamList, "groupchat">;
-type GroupChatNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "groupchat"
->;
 
 // --- API Response Types ---
 interface GroupNameResponse {
@@ -162,7 +150,9 @@ const DateSeparatorComponent = ({ label }: { label: string }) => (
 
 // --- Main Chat Page ---
 export default function GroupChatPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [groupName, setGroupName] = useState("Group Chat");
   const [text, setText] = useState("");
   const [offset, setOffset] = useState(0);
   const [total, setTotal] = useState(0);
@@ -181,9 +171,9 @@ export default function GroupChatPage() {
 
   const insets = useSafeAreaInsets();
   const isAtBottomRef = useRef(true);
-  const navigation = useNavigation<GroupChatNavigationProp>();
-  const route = useRoute<GroupChatRouteProp>();
-  const { id: groupId } = route.params;
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const groupId = Number(id);
+  
 
   //image
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -205,34 +195,26 @@ export default function GroupChatPage() {
 
   // Fetch group name
   useEffect(() => {
-    const fetchGroupName = async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/groups.php?group_id=${groupId}`
-        );
-        const data = response.data as GroupNameResponse;
+  const fetchGroupName = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/groups.php?group_id=${groupId}`
+      );
 
-        if (data.success && data.group_name) {
-          navigation.setOptions({
-            title: data.group_name,
-            headerRight: () => (
-              <TouchableOpacity
-                style={{ marginRight: 12 }}
-                onPress={() =>
-                  navigation.navigate("groupinfo", { id: groupId })
-                }
-              >
-                <MaterialIcons name="info" size={24} color={COLORS.tint} />
-              </TouchableOpacity>
-            ),
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching group name:", error);
+      const data = response.data as GroupNameResponse;
+
+      if (data.success && data.group_name) {
+        setGroupName(data.group_name);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching group name:", error);
+    }
+  };
+
+  if (groupId) {
     fetchGroupName();
-  }, [groupId]);
+  }
+}, [groupId]);
 
 
   /* ---------- SCROLL TO BOTTOM ---------- */
@@ -529,6 +511,27 @@ export default function GroupChatPage() {
 
   /* -------------------- RENDER -------------------- */
   return (
+    <>
+    <Stack.Screen
+      options={{
+        title: groupName,
+        headerRight: () => (
+          <TouchableOpacity
+            style={{ marginRight: 12 }}
+            onPress={() =>
+              router.push(`/groupinfo?id=${groupId}`)
+            }
+          >
+            <MaterialIcons
+              name="info"
+              size={24}
+              color={COLORS.tint}
+            />
+          </TouchableOpacity>
+        ),
+      }}
+    />
+
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -540,7 +543,9 @@ export default function GroupChatPage() {
         data={messagesWithSeparators.slice().reverse()}
         keyExtractor={(item, idx) => "type" in item ? `sep-${item.dateLabel}-${idx}`: item.id.toString()}
         renderItem={({ item }) => {
-          if ("type" in item) return <DateSeparatorComponent label={item.dateLabel} />;
+          if ("type" in item) {
+            return <DateSeparatorComponent label={item.dateLabel} />;
+          }
 
           const isMe = item.sender_id === userId;
           const isBlocked = item.media?.action === "block";
@@ -881,6 +886,7 @@ export default function GroupChatPage() {
       </TouchableOpacity>
     </Animated.View>
   </KeyboardAvoidingView>
+  </>
   );
 }
 
@@ -891,7 +897,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10, 
     paddingHorizontal: 12, 
     borderRadius: 14,
-    overflow: "hidden",
+    // overflow: "hidden",
   },
 
   myMessage: { 
@@ -1129,7 +1135,6 @@ const styles = StyleSheet.create({
     top: 40,
     right: 20,
     zIndex: 10000,
-    color: "#000"
   },
 
   previewContainer: {
@@ -1223,3 +1228,4 @@ const styles = StyleSheet.create({
   },
 
 });
+

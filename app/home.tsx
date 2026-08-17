@@ -24,11 +24,64 @@ import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL } from "../lib/apiConfig";
 
 // Types
-type User = { id: number; username: string };
+type User = { 
+  id: number; 
+  username: string; 
+  last_chat_at?: string | null; 
+};
 interface Group {
   id: number;
   group_name: string;
 }
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+const formatLastChatTime = (dateString?: string | null): string => {
+  if (!dateString) {
+    return "No chat yet";
+  }
+
+  const date = new Date(dateString.replace(" ", "T"));
+
+  if (isNaN(date.getTime())) {
+    return "";
+  }
+
+  const now = new Date();
+
+  const isSameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate();
+
+  if (isSameDay) {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+
+  const isYesterday =
+    date.getFullYear() === yesterday.getFullYear() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getDate() === yesterday.getDate();
+
+  if (isYesterday) {
+    return "Yesterday";
+  }
+
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
+  });
+};
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -44,36 +97,87 @@ export default function HomeScreen() {
   const [contactsError, setContactsError] = useState<string | null>(null);
   const [groupsError, setGroupsError] = useState<string | null>(null);
 
-  // Create Group Modal state
-  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  // ---------------------------------------------------
+  // Contacts search
+  // ---------------------------------------------------
+
+  const [contactSearch, setContactSearch] = useState("");
+
+  // ---------------------------------------------------
+  // Create Group
+  // ---------------------------------------------------
+
+  const [showCreateGroup, setShowCreateGroup] =
+    useState(false);
+
   const [groupName, setGroupName] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+
+  const [selectedUsers, setSelectedUsers] =
+    useState<string[]>([]);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const BASE_URL = API_BASE_URL;
 
-  // Load logged-in user info AND fetch contacts & groups
+  // ===================================================
+  // LOAD USER
+  // ===================================================
+
   useEffect(() => {
-    const fetchUserAndData = async () => {
-      const id = await AsyncStorage.getItem("userID");
-      const username = await AsyncStorage.getItem("username");
-      if (id) {
+    const loadUser = async () => {
+      try {
+        const id = await AsyncStorage.getItem("userID");
+        const username =
+          await AsyncStorage.getItem("username");
+
+        if (!id) {
+          router.replace("/auth");
+          return;
+        }
+
         const userId = Number(id);
+
         setCurrentid(userId);
+
+        if (username) {
+          setCurrentUsername(username);
+        }
+
         await fetchUsers(userId);
         await fetchGroups(userId);
+      } catch (error) {
+        console.error("Load user error:", error);
       }
-      if (username) setCurrentUsername(username);
     };
-    fetchUserAndData();
+
+    loadUser();
   }, []);
 
-  // Fetch users
+  // ===================================================
+  // FETCH USERS / CONTACTS
+  // ===================================================
+
   const fetchUsers = async (id: number) => {
     try {
-      const res = await axios.get(`${BASE_URL}/users.php`, { params: { id } });
-      if (res.data?.success && Array.isArray(res.data.users)) {
-        setContacts(res.data.users.filter((u: User) => u.id !== id));
+      const res = await axios.get(`${BASE_URL}/users.php`, {
+        params: {
+          id,
+        },
+      });
+
+      if (
+        res.data?.success &&
+        Array.isArray(res.data.users)
+      ) {
+        const users: User[] = res.data.users
+          .filter((u: User) => u.id !== id)
+          .map((u: any) => ({
+            id: Number(u.id),
+            username: String(u.username),
+            last_chat_at: u.last_chat_at ?? null,
+          }));
+
+        setContacts(users);
         setContactsError(null);
       } else {
         setContacts([]);
@@ -81,12 +185,17 @@ export default function HomeScreen() {
       }
     } catch (err) {
       console.error("Fetch users error:", err);
+
       setContacts([]);
-      setContactsError("Failed to load contacts. Pull to refresh.");
+      setContactsError(
+        "Failed to load contacts. Pull to refresh."
+      );
     }
   };
 
-  // Fetch groups
+  // ===================================================
+  // FETCH GROUPS
+  // ===================================================
   const fetchGroups = async (id: number) => {
     try {
       const res = await axios.get(`${BASE_URL}/groups.php`, {
@@ -197,30 +306,70 @@ export default function HomeScreen() {
 
   // Contacts Tab
   const renderContacts = () => (
-    <FlatList
-      data={
-        contacts.length > 0
-          ? contacts
-          : [{ id: 0, username: contactsError || "No contacts available." }]
-      }
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) =>
-        item.id === 0 ? (
-          <Text style={styles.errorText}>{item.username}</Text>
-        ) : (
-          <TouchableOpacity
-            style={styles.userItem}
-            onPress={() => navigateToChat(item.id, item.username)}
-          >
-            <Text style={styles.userText}>{item.username}</Text>
+    <View style={{ flex: 1 }}>
+
+      {/* Search Contacts */}
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color="#888"
+          style={{ marginRight: 8 }}
+        />
+
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search contacts..."
+          placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          autoCapitalize="none"
+        />
+
+        {searchQuery.length > 0 && (
+          <TouchableOpacity onPress={() => setSearchQuery("")}>
+            <Ionicons
+              name="close-circle"
+              size={20}
+              color="#888"
+            />
           </TouchableOpacity>
-        )
-      }
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      contentContainerStyle={{ paddingBottom: 20 }}
-    />
+        )}
+      </View>
+
+      <FlatList
+        data={
+          contacts.length > 0
+            ? filteredContacts
+            : [{ id: 0, username: contactsError || "No contacts available." }]
+        }
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) =>
+          item.id === 0 ? (
+            <Text style={styles.errorText}>
+              {item.username}
+            </Text>
+          ) : (
+            <TouchableOpacity
+              style={styles.userItem}
+              onPress={() => navigateToChat(item.id, item.username)}
+            >
+              <Text style={styles.userText}>
+                {item.username}
+              </Text>
+            </TouchableOpacity>
+          )
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+
+    </View>
   );
 
   // Groups Tab
@@ -304,8 +453,17 @@ export default function HomeScreen() {
 
   // Filter contacts for search
   const filteredContacts = contacts.filter((user) =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  user.username
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase())
+);
+
+// Filter search bar
+const filteredGroupMembers = contacts.filter((user) =>
+  user.username
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase())
+);
 
   return (
     <KeyboardAvoidingView
@@ -611,4 +769,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
+  searchContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#fff",
+  borderWidth: 1,
+  borderColor: "#ddd",
+  borderRadius: 12,
+  marginHorizontal: 12,
+  marginVertical: 10,
+  paddingHorizontal: 12,
+  height: 45,
+},
+
+searchInput: {
+  flex: 1,
+  fontSize: 15,
+  color: "#000",
+},
 });

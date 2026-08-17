@@ -115,12 +115,23 @@ file_put_contents(
 
 
 /* ================= UPDATE MEDIA ================= */
+
 $update = $conn->prepare("
-  UPDATE message_media
-  SET action = ?, screening_result = ?, screened_at = NOW(), file_path = ?
-  WHERE id = ?
+    UPDATE message_media
+    SET action = ?, screening_result = ?, screened_at = NOW(), file_path = ?
+    WHERE id = ?
 ");
-$update->bind_param("sssi", $action, json_encode($result), $relativePath, $mediaId);
+
+$screeningJson = json_encode($result);
+
+$update->bind_param(
+    "sssi",
+    $action,
+    $screeningJson,
+    $relativePath,
+    $mediaId
+);
+
 $update->execute();
 
 /* ================= INSERT MESSAGE ================= */
@@ -132,9 +143,9 @@ $msg = $conn->prepare("
 $msg->bind_param("iii", $sender_id, $receiver_id, $mediaId);
 $msg->execute();
 
-echo json_encode([
-    "success" => true,
-    "media_id" => $mediaId,
-    "action" => $action,
-    "media_url" => $action === "block" ? null : getBaseURL() . $relativePath
-]);
+// echo json_encode([
+//     "success" => true,
+//     "media_id" => $mediaId,
+//     "action" => $action,
+//     "media_url" => $action === "block" ? null : getBaseURL() . $relativePath
+// ]);

@@ -57,6 +57,7 @@ interface GroupMemberResponse {
   errors?: string[];
   added?: number[];
   new_role?: "Admin" | "Member";
+  message?: string;
 }
 
 interface UsersResponse {
@@ -395,40 +396,59 @@ export default function GroupInfo() {
   };
 
   const deleteGroup = async () => {
-    Alert.alert("Delete Group", "This action cannot be undone.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const res = await axios.delete<GroupMemberResponse>(
-              `${API_BASE_URL}/groups.php`,
-              {
-                data: {
-                  group_id: GROUP_ID,
-                  logged_in_user: userId,
-                },
-              }
-            );
+  Alert.alert("Delete Group", "This action cannot be undone.", [
+    { text: "Cancel", style: "cancel" },
 
-            if (res.data.success) {
-              Alert.alert("Success", "Group deleted.");
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "home" as never }],
-              });
-            } else {
-              Alert.alert("Error", "Failed to delete group");
+    {
+      text: "Delete",
+      style: "destructive",
+
+      onPress: async () => {
+        try {
+          const res = await axios.delete<GroupMemberResponse>(
+            `${API_BASE_URL}/groups.php`,
+            {
+              data: {
+                group_id: GROUP_ID,
+                logged_in_user: userId,
+              },
             }
-          } catch (err) {
-            console.error("Delete group error:", err);
-            Alert.alert("Error", "Failed to delete group");
+          );
+
+          console.log("DELETE GROUP RESPONSE:", res.data);
+
+          if (res.data.success) {
+            Alert.alert("Success", "Group deleted.");
+
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "home" as never }],
+            });
+
+          } else {
+            Alert.alert(
+              "Error",
+              res.data.message || "Failed to delete group"
+            );
           }
-        },
+
+        } catch (err: any) {
+          console.error("Delete group error:", err);
+          console.error(
+            "Delete group response:",
+            err?.response?.data
+          );
+
+          Alert.alert(
+            "Error",
+            err?.response?.data?.message ||
+            "Failed to delete group"
+          );
+        }
       },
-    ]);
-  };
+    },
+  ]);
+};
 
 
   // -------------------- Report user --------------------
