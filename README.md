@@ -59,7 +59,7 @@ This was a collaborative internship project. My main contributions included:
 
 ### Group Messaging
 
-![ChatKita Chat Screen](screenshotsgroupchat.jpg)
+![ChatKita Chat Screen](screenshots/groupchat.jpg)
 
 ## Running the Project
 
