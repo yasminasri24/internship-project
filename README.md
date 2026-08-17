@@ -1,110 +1,98 @@
-# internship-project ChatKita (Android Chat Application)
+# ChatKita — Android Chat Application
 
-A mobile chat application developed during my internship as a group project. The system allows users to communicate through a simple messaging interface with backend support for authentication and data storage.
+An Android mobile messaging application developed as a group internship project using React Native, PHP, and MySQL.
 
----
+## Demo
 
-## Project Overview
+[▶️ Watch ChatKita Demo Video](https://drive.google.com/file/d/11dpx0KSiyAAXPuzqjadXoq8tuf6NMPvt/view?usp=sharing)
 
-ChatKita is an Android-based chat application built using React Native (Expo) for the frontend and PHP for the backend. The system uses MySQL as the database and was developed in a local environment using XAMPP.
-This project was developed as part of a team during my internship program to gain hands-on experience in full-stack mobile application development.
+The demo showcases user authentication, one-to-one messaging, image sharing, message reporting, group creation, group messaging, member management, and profile/logout functionality.
 
----
+## Overview
 
-## Team Project
+ChatKita is an Android-based messaging application developed during my internship as part of a team.
 
-This is a group internship project. My role focused on:
-- Frontend development using React Native
-- UI implementation and integration with backend APIs
-- Testing and debugging features
+The application supports both private and group conversations, with backend integration for authentication, messaging, media handling, and data storage.
 
----
+## Key Features
+
+- User registration and login
+- One-to-one messaging
+- Group chat
+- Text and emoji messaging
+- Image sharing
+- Message reporting
+- Group creation and member management
+- Media screening
+- User profile and logout
+- MySQL database integration
 
 ## Tech Stack
 
-- Frontend: React Native (Expo)
-- PHP (Backend API)
-- MySQL (Database)
-- XAMPP (Local Development Environment)
-- Testing: Expo Go version SDK 53 (Android)
-
----
-
-## Features
-
-- User registration and login
-- Basic chat functionality (one-to-one chat and group chat)
-- Message sending and receiving
-- Database integration for storing user data and messages
-- Simple and responsive mobile UI
-- Simple media screening
-
----
-
-## Setup Instructions
-
-### Clone Repository
-'''bash
-git clone https://github.com/your-username/ChatKita-NNM.git
-
----
-
-### Backend Setup (PHP + XAMPP)
-1. Install XAMPP
-2. Move the backend project to: C:/xampp/htdocs/
-3. Start Apache & MySQL
-4. Create a database in phpMyAdmin: chatkita
-5. Import the provided .sql file into the database
-6. Put your IP address in the apiConfig.ts file before running this project
-
----
-
-### Frontend Setup (React Native)
-1. Install dependencies:
-   '''bash
-   npm install
-2. Run Android app:
-   '''bash
-   npx expo start
-3. Scan the QR code using Expo Go (Android)
-
----
-
-### Database
-1. A MySQL database used for storing users and messages
-2. Open phpMyAdmin
-3. Create a database named 'chatkita'
-4. Import the sql file located in: database/chatkita.sql
-
----
-
-### Screenshots
-1. Login Screen
-   <img width="263" height="450" alt="Screenshot 2026-01-17 225610" src="https://github.com/user-attachments/assets/c7b9466e-7f89-4419-b29a-c761322772cd" />
-
-2. Chat Screen
-   <img width="263" height="450" alt="image" src="https://github.com/user-attachments/assets/1715b7c2-f6bd-477a-86ac-545cefd4cfef" />
-
----
+- **Frontend:** React Native (Expo)
+- **Backend:** PHP
+- **Database:** MySQL
+- **Development Environment:** Laragon
+- **Testing:** Expo Go (Android)
 
 ## My Contribution
 
-This was a group internship project. My contribution includes:
+This was a collaborative internship project. My main contributions included:
 
-- Assisted in frontend development using React Native
-- Authentication and registration development
-- Media screening module development
-- UI implementation and integration with backend APIs
-- Testing and debugging features
+- Developed and implemented React Native UI components
+- Worked on user authentication and registration
+- Integrated frontend screens with PHP backend APIs
+- Developed the media screening functionality
+- Implemented messaging and media-sharing features
+- Tested and debugged application features
+- Assisted with group chat and user interaction functionality
 
----
+## Screenshots
+
+### Login
+
+![ChatKita Login Screen](screenshots/login.jpg)
+
+### One-to-One Messaging
+
+![ChatKita Chat Screen](screenshots/1-to-1chat.jpg)
+
+### Group Messaging
+
+![ChatKita Chat Screen](screenshotsgroupchat.jpg)
+
+## Running the Project
+
+### Backend
+
+1. Install Laragon.
+2. Place the project in `C:\laragon\www\`.
+3. Start Apache and MySQL.
+4. Create a MySQL database named `chatkita`.
+5. Import `database/chatkita.sql`.
+6. Configure the local IP in `lib/apiConfig.ts`.
+   
+### Frontend
+
+```bash
+npm install
+npx expo start
+```
+Open the project using Expo Go on an Android device.
+
+## Project Type
+
+### Internship Group Project
+
+This project was developed collaboratively during my internship. The repository represents the team's application, while the contribution section highlights my individual work.
+
 
 ## License
-This project is for educational and portfolio purposes only.
 
----
+This project is for educational and portfolio purposes.
 
 ## Developer
-- Name: Yasmin
-- Role: Software Engineering Student
-- Project Type: Internship (Group Project)
+
+Yasmin
+Software Engineering Graduate
+
